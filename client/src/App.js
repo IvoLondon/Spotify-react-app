@@ -2,11 +2,29 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import Spotify from 'spotify-web-api-js'
+
+
+const spotifyApi = new Spotify();
+
 class App extends Component {
+
   constructor() {
     super();
     const params = this.getHashParams();
-    console.log(params);
+    const token = params.access_token;
+
+    if(token) {
+      spotifyApi.setAccessToken(token);
+    }
+
+    this.state = {
+      loggedIn : token ? true : false,
+      nowPlaying : {
+        songName : '',
+        songImg : '',
+      }
+    }
   }
   getHashParams() {
     var hashParams = {};
@@ -18,6 +36,13 @@ class App extends Component {
        e = r.exec(q);
     }
     return hashParams;
+  }
+
+  getNowPlaying() {
+    spotifyApi.getMyCurrentPlaybackState()
+      .then((response) => {
+        console.log(response);
+      })
   }
 
   render() {
@@ -32,6 +57,9 @@ class App extends Component {
           >
             Login to Spotify
           </a>
+          { this.state.loggedIn ? 
+            <button onClick={this.getNowPlaying}>Check whats playing</button>
+          : null }
         </header>
       </div>
     );
