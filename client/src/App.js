@@ -26,7 +26,7 @@ class App extends Component {
       }
     }
   }
-  getHashParams() {
+  getHashParams = () => {
     var hashParams = {};
     var e, r = /([^&;=]+)=?([^&;]*)/g,
         q = window.location.hash.substring(1);
@@ -38,28 +38,46 @@ class App extends Component {
     return hashParams;
   }
 
-  getNowPlaying() {
+  getNowPlaying = () => {
     spotifyApi.getMyCurrentPlaybackState()
       .then((response) => {
-        console.log(response);
+        this.setState({
+          nowPlaying : {
+            songName: response.item.name,
+            songImg : response.item.album.images[0],
+          }
+        })
       })
   }
 
   render() {
+
+    let nowPlaying = null;
+    if(this.state.nowPlaying.songName) { 
+      nowPlaying = <div>
+          <p>{this.state.nowPlaying.songName} is now playing...</p>
+          <img src={this.state.nowPlaying.songImg.url} />
+        </div>
+    }
+
     return (
       <div className="App">
         <header className="App-header">
-          <a
-            className="App-link"
-            href="http://localhost:8898"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Login to Spotify
-          </a>
+
+          {nowPlaying}
+          
           { this.state.loggedIn ? 
-            <button onClick={this.getNowPlaying}>Check whats playing</button>
-          : null }
+              <button onClick={this.getNowPlaying}>Check whats playing</button>
+            : 
+              <a
+                className="App-link"
+                href="http://localhost:8898/login"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Login to Spotify
+              </a>
+          }
         </header>
       </div>
     );
